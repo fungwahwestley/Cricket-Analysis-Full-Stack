@@ -5,14 +5,14 @@ const prisma = new PrismaClient();
 const router = Router();
 
 router.get("/games", async (req, res) => {
-    const games = await prisma.game.findMany({
-        include: {
-            homeTeam: true,
-            awayTeam: true,
-            venue: true,
-        },
-    });
-    res.json(games);
+  const games = await prisma.game.findMany({
+    include: {
+      homeTeam: true,
+      awayTeam: true,
+      venue: true,
+    },
+  });
+  res.json(games);
 });
 
 export default router;

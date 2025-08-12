@@ -2,12 +2,12 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Venue {
@@ -15,22 +15,28 @@ model Venue {
   name           String @map("venue_name")
   homeMultiplier Float  @map("home_multiplier")
   games          Game[]
+
+  @@map("venue")
 }
 
 model Team {
-  id          Int                @id @map("team_id")
-  name        String             @unique
-  simulations SimulationResult[]
-  homeGames   Game[]             @relation("HomeGames")
-  awayGames   Game[]             @relation("AwayGames")
+  id          Int          @id @map("team_id")
+  name        String       @unique
+  simulations Simulation[]
+  homeGames   Game[]       @relation("HomeGames")
+  awayGames   Game[]       @relation("AwayGames")
+
+  @@map("team")
 }
 
-model SimulationResult {
+model Simulation {
   id            Int  @id @default(autoincrement())
   simulationRun Int  @map("simulation_run")
   results       Int
   teamId        Int
   team          Team @relation(fields: [teamId], references: [id])
+
+  @@map("simulation")
 }
 
 model Game {
@@ -42,4 +48,6 @@ model Game {
   homeTeam   Team     @relation("HomeGames", fields: [homeTeamId], references: [id])
   awayTeam   Team     @relation("AwayGames", fields: [awayTeamId], references: [id])
   venue      Venue    @relation(fields: [venueId], references: [id])
+
+  @@map("game")
 }
