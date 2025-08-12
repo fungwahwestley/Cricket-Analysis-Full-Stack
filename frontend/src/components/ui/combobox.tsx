@@ -19,70 +19,83 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 
-const frameworks = [
-  {
-    value: "next.js",
-    label: "Next.js",
-  },
-  {
-    value: "sveltekit",
-    label: "SvelteKit",
-  },
-  {
-    value: "nuxt.js",
-    label: "Nuxt.js",
-  },
-  {
-    value: "remix",
-    label: "Remix",
-  },
-  {
-    value: "astro",
-    label: "Astro",
-  },
-];
+export interface ComboboxOption {
+  value: string;
+  label: string;
+}
 
-export function ComboboxDemo() {
+interface ComboboxProps {
+  options: ComboboxOption[];
+  value?: string;
+  onValueChange: (value: string) => void;
+  placeholder?: string;
+  searchPlaceholder?: string;
+  emptyMessage?: string;
+  contentClassName?: string;
+  className?: string;
+  variant?: "default" | "filter";
+}
+
+export function Combobox({
+  options,
+  value,
+  onValueChange,
+  placeholder,
+  searchPlaceholder,
+  emptyMessage,
+  contentClassName,
+  className,
+  variant = "default",
+}: ComboboxProps) {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState("");
+
+  const selectedOption = options.find((option) => option.value === value);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
-          variant="outline"
+          variant="ghost"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between"
+          className={cn(
+            "w-full cursor-pointer justify-between font-normal",
+            variant === "filter" &&
+              "h-auto border-none !p-0 text-base text-gray-400 shadow-none hover:bg-transparent hover:text-gray-400 focus-visible:ring-0",
+            className,
+          )}
         >
-          {value
-            ? frameworks.find((framework) => framework.value === value)?.label
-            : "Select framework..."}
-          <ChevronsUpDown className="opacity-50" />
+          {selectedOption ? selectedOption.label : placeholder}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+      <PopoverContent
+        className={cn(
+          "w-[--radix-popover-trigger-width] p-0",
+          contentClassName,
+        )}
+      >
         <Command>
-          <CommandInput placeholder="Search framework..." className="h-9" />
+          <CommandInput placeholder={searchPlaceholder} />
           <CommandList>
-            <CommandEmpty>No framework found.</CommandEmpty>
+            <CommandEmpty>{emptyMessage}</CommandEmpty>
             <CommandGroup>
-              {frameworks.map((framework) => (
+              {options.map((option) => (
                 <CommandItem
-                  key={framework.value}
-                  value={framework.value}
+                  key={option.value}
+                  value={option.value}
                   onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue);
+                    onValueChange(currentValue === value ? "" : currentValue);
                     setOpen(false);
                   }}
                 >
-                  {framework.label}
                   <Check
                     className={cn(
-                      "ml-auto",
-                      value === framework.value ? "opacity-100" : "opacity-0",
+                      "mr-2 h-4 w-4",
+                      value === option.value ? "opacity-100" : "opacity-0",
                     )}
                   />
+                  {option.label}
                 </CommandItem>
               ))}
             </CommandGroup>
