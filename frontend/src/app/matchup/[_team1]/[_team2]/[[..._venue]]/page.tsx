@@ -64,7 +64,7 @@ export default async function Page({
           <div className="mt-6 flex w-full flex-col items-stretch gap-6 lg:flex-row">
             <div className="flex-1 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
               <Histogram
-                title="Simulated Matchup"
+                title="Percentage of Matches"
                 subtitle=""
                 data={data}
                 series={series}

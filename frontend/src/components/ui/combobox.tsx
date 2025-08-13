@@ -25,6 +25,7 @@ export interface ComboboxOption {
 }
 
 interface ComboboxProps {
+  id: string;
   options: ComboboxOption[];
   value?: string;
   onValueChange: (value: string) => void;
@@ -37,6 +38,7 @@ interface ComboboxProps {
 }
 
 export function Combobox({
+  id,
   options,
   value,
   onValueChange,
@@ -57,13 +59,14 @@ export function Combobox({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
+          id={id}
           variant="ghost"
           role="combobox"
           aria-expanded={open}
           className={cn(
             "w-full cursor-pointer justify-between font-normal",
             variant === "filter" &&
-              "h-auto border-none !p-0 text-base text-gray-400 shadow-none hover:bg-transparent hover:text-gray-400 focus-visible:ring-0",
+              "h-[36px] border-none !p-0 text-base text-gray-500 shadow-none hover:bg-transparent hover:text-gray-500 focus-visible:ring-0",
             className,
           )}
         >

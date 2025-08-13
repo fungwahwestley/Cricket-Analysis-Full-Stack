@@ -2,7 +2,7 @@ import "~/styles/globals.css";
 
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
-import { Header } from "~/components/header";
+import { Header } from "~/components/header/header";
 
 export const metadata: Metadata = {
   title: "Cricket Data Analytics",
