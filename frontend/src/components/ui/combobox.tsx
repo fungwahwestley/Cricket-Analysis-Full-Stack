@@ -20,7 +20,7 @@ import {
 } from "~/components/ui/popover";
 
 export interface ComboboxOption {
-  value: string;
+  value: string | number;
   label: string;
 }
 
@@ -49,7 +49,9 @@ export function Combobox({
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false);
 
-  const selectedOption = options.find((option) => option.value === value);
+  const selectedOption = options.find(
+    (option) => String(option.value) === value,
+  );
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -82,8 +84,9 @@ export function Combobox({
             <CommandGroup>
               {options.map((option) => (
                 <CommandItem
-                  key={option.value}
-                  value={option.value}
+                  key={String(option.value)}
+                  value={String(option.value)}
+                  keywords={[option.label]}
                   onSelect={(currentValue) => {
                     onValueChange(currentValue === value ? "" : currentValue);
                     setOpen(false);
@@ -92,7 +95,9 @@ export function Combobox({
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === option.value ? "opacity-100" : "opacity-0",
+                      value === String(option.value)
+                        ? "opacity-100"
+                        : "opacity-0",
                     )}
                   />
                   {option.label}

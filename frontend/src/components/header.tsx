@@ -1,35 +1,47 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Combobox } from "~/components/ui/combobox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Search } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const teams = [
-  { value: "team-1", label: "Mumbai Indians" },
-  { value: "team-2", label: "Chennai Super Kings" },
-  { value: "team-3", label: "Royal Challengers Bangalore" },
-  { value: "team-4", label: "Kolkata Knight Riders" },
-  { value: "team-5", label: "Delhi Capitals" },
-  { value: "team-6", label: "Punjab Kings" },
-  { value: "team-7", label: "Rajasthan Royals" },
-  { value: "team-8", label: "Sunrisers Hyderabad" },
+  { value: 0, label: "Sunrisers Hyderabad" },
+  { value: 1, label: "Mumbai Indians" },
+  { value: 2, label: "Chennai Super Kings" },
+  { value: 3, label: "Royal Challengers Bangalore" },
+  { value: 4, label: "Kolkata Knight Riders" },
+  { value: 5, label: "Delhi Capitals" },
+  { value: 6, label: "Punjab Kings" },
+  { value: 7, label: "Rajasthan Royals" },
 ];
 
 const venues = [
-  { value: "venue-eden", label: "Eden Gardens" },
-  { value: "venue-wankhede", label: "Wankhede Stadium" },
+  { value: 0, label: "Eden Gardens" },
+  { value: 1, label: "Wankhede Stadium" },
 ];
 
 export function Header() {
   const [team1, setTeam1] = useState<string | undefined>();
   const [team2, setTeam2] = useState<string | undefined>();
   const [venue, setVenue] = useState<string | undefined>();
+  const router = useRouter();
+
+  const handleSearch = useCallback(() => {
+    if (team1 !== undefined && team2 !== undefined) {
+      let url = `/matchup/${team1}/${team2}`;
+      if (venue !== undefined) {
+        url = `${url}/${venue}`;
+      }
+      router.push(url);
+    }
+  }, [team1, team2, venue]);
 
   return (
     <div className="flex flex-col items-center pt-12">
-      <Tabs defaultValue="custom-matchups" className="w-full max-w-4xl">
+      <Tabs defaultValue="custom-matchups" className="w-full">
         <TabsList className="mx-auto flex w-fit gap-8 bg-transparent p-0">
           <TabsTrigger
             value="past-games"
@@ -54,7 +66,8 @@ export function Header() {
         </TabsContent>
 
         <TabsContent value="custom-matchups" className="mt-8">
-          <div className="mx-auto flex max-w-3xl items-center justify-between rounded-full bg-white p-2 shadow-lg">
+          {/* Search Container */}
+          <div className="mx-auto flex items-center justify-between rounded-full bg-white p-2 shadow-lg">
             <div className="flex flex-grow items-center divide-x divide-gray-200">
               <div className="px-9 py-2">
                 <label className="text-sm font-bold" htmlFor="team1">
@@ -102,7 +115,8 @@ export function Header() {
 
             <Button
               size="icon"
-              className="h-14 w-14 flex-shrink-0 rounded-full bg-pink-500 text-white hover:bg-pink-600"
+              className="h-14 w-14 flex-shrink-0 cursor-pointer rounded-full bg-pink-500 text-white hover:bg-pink-600"
+              onClick={handleSearch}
             >
               <Search className="h-6 w-6" />
             </Button>
