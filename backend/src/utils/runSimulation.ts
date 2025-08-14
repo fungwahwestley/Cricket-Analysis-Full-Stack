@@ -1,42 +1,13 @@
-import { Router } from "express";
-import { PrismaClient } from "@prisma/client";
-import * as z from "zod";
+import { prisma } from "~/server/prisma";
 
-const prisma = new PrismaClient();
-const router = Router();
+export type Bin = { score: number; [key: string]: number };
 
-type Bin = { score: number; [key: string]: number };
-
-const paramsSchema = z.object({
-  team1Id: z.coerce.number().int().min(0),
-  team2Id: z.coerce.number().int().min(0),
-  venueId: z.coerce.number().int().min(0).optional(),
-});
-
-const querySchema = z.object({
-  binSize: z.coerce.number().int().positive().max(1000).default(10),
-});
-
-router.get("/matchup/:team1Id/:team2Id/:venueId?", async (req, res) => {
-  const parsedParams = paramsSchema.safeParse(req.params);
-  if (!parsedParams.success) {
-    return res.status(400).json({
-      error: "Invalid route params",
-      details: z.treeifyError(parsedParams.error),
-    });
-  }
-
-  const parsedQuery = querySchema.safeParse(req.query);
-  if (!parsedQuery.success) {
-    return res.status(400).json({
-      error: "Invalid query params",
-      details: z.treeifyError(parsedQuery.error),
-    });
-  }
-
-  const { team1Id, team2Id, venueId } = parsedParams.data;
-  const { binSize } = parsedQuery.data;
-
+export const runSimulation = async (
+  team1Id: number,
+  team2Id: number,
+  venueId?: number,
+  binSize = 10,
+) => {
   const [team1, team2, venue] = await Promise.all([
     prisma.team.findUnique({
       where: { id: team1Id },
@@ -54,7 +25,7 @@ router.get("/matchup/:team1Id/:team2Id/:venueId?", async (req, res) => {
   ]);
 
   if (!team1 || !team2) {
-    return res.status(404).json({ error: "Team not found" });
+    throw new Error("Team not found");
   }
 
   const [team1Simulations, team2Simulations] = await Promise.all([
@@ -73,7 +44,7 @@ router.get("/matchup/:team1Id/:team2Id/:venueId?", async (req, res) => {
   let minScore = Infinity;
   let maxScore = -Infinity;
 
-  const binCounts: Record<number, { [key: string]: number }> = {};
+  const binCounts: Record<number, Record<string, number>> = {};
   const bins: Bin[] = [];
 
   for (const [teamName, teamScores] of [
@@ -137,26 +108,13 @@ router.get("/matchup/:team1Id/:team2Id/:venueId?", async (req, res) => {
   const team1WinPercent = team1Wins / minSimulations;
   const team2WinPercent = team2Wins / minSimulations;
 
-  res.json({
-    team1: {
-      name: team1.name,
-      winPercent: team1WinPercent,
-      simulationsCount: minSimulations,
-    },
-    team2: {
-      name: team2.name,
-      winPercent: team2WinPercent,
-      simulationsCount: minSimulations,
-    },
-    venue: venue ? venue.name : "Unknown Venue",
-    histogram: {
-      data: bins,
-      series: [
-        { type: "bar", xKey: "runs", yKey: team1.name, yName: team1.name },
-        { type: "bar", xKey: "runs", yKey: team2.name, yName: team2.name },
-      ],
-    },
-  });
-});
-
-export default router;
+  return {
+    team1,
+    team2,
+    venue,
+    bins,
+    team1WinPercent: Math.round(team1WinPercent * 100) / 100,
+    team2WinPercent: Math.round(team2WinPercent * 100) / 100,
+    minSimulations,
+  };
+};

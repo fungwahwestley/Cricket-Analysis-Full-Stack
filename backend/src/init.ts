@@ -1,13 +1,13 @@
-import { PrismaClient, type Prisma } from "@prisma/client";
+import { type Prisma } from "@prisma/client";
 import fs from "fs";
 import csv from "csv-parser";
 import type { GameRaw, VenueRaw, SimulationRaw } from "~/types/rawData";
-
-const prisma = new PrismaClient();
+import { prisma } from "./server/prisma";
 
 async function main() {
   const teamNameToId: Record<string, number> = {};
 
+  // Venues - Read and write
   await new Promise<void>((resolve, reject) => {
     const venues: Prisma.VenueCreateManyInput[] = [];
     fs.createReadStream("raw/venues.csv")
@@ -19,32 +19,30 @@ async function main() {
           homeMultiplier: parseFloat(data.home_multiplier),
         });
       })
-      .on("end", async () => {
-        try {
-          await prisma.venue.createMany({ data: venues });
-          resolve();
-        } catch (error) {
-          reject(error);
-        }
+      .on("end", () => {
+        prisma.venue
+          .createMany({ data: venues })
+          .then(() => resolve())
+          .catch(reject);
       })
       .on("error", reject);
   });
 
+  // Games - Read
   const teamHomeVenues: Record<string, number> = {};
   const gamesRaw: GameRaw[] = [];
   await new Promise<void>((resolve, reject) => {
     fs.createReadStream("raw/games.csv")
       .pipe(csv())
       .on("data", (data: GameRaw) => {
-        if (teamHomeVenues[data.home_team] === undefined) {
-          teamHomeVenues[data.home_team] = parseInt(data.venue_id);
-        }
+        teamHomeVenues[data.home_team] ??= parseInt(data.venue_id);
         gamesRaw.push(data);
       })
       .on("end", resolve)
       .on("error", reject);
   });
 
+  // Teams and simulations - Read and write
   await new Promise<void>((resolve, reject) => {
     const teams: Prisma.TeamCreateManyInput[] = [];
     const simulations: Prisma.SimulationCreateManyInput[] = [];
@@ -70,42 +68,32 @@ async function main() {
           results: parseInt(data.results),
         });
       })
-      .on("end", async () => {
-        try {
-          await prisma.team.createMany({ data: teams });
-          await prisma.simulation.createMany({ data: simulations });
-          resolve();
-        } catch (error) {
-          reject(error);
-        }
+      .on("end", () => {
+        prisma.team
+          .createMany({ data: teams })
+          .then(() => prisma.simulation.createMany({ data: simulations }))
+          .then(() => resolve())
+          .catch(reject);
       })
       .on("error", reject);
   });
 
-  await new Promise<void>(async (resolve, reject) => {
-    const games: Prisma.GameCreateManyInput[] = [];
-    for (const data of gamesRaw) {
-      const homeTeamId = teamNameToId[data.home_team];
-      const awayTeamId = teamNameToId[data.away_team];
-      if (homeTeamId === undefined || awayTeamId === undefined) {
-        throw new Error(
-          `Team ${data.home_team} or ${data.away_team} not found`,
-        );
-      }
-      games.push({
-        homeTeamId,
-        awayTeamId,
-        date: new Date(data.date),
-        venueId: parseInt(data.venue_id),
-      });
+  // Games - Write
+  const games: Prisma.GameCreateManyInput[] = [];
+  for (const data of gamesRaw) {
+    const homeTeamId = teamNameToId[data.home_team];
+    const awayTeamId = teamNameToId[data.away_team];
+    if (homeTeamId === undefined || awayTeamId === undefined) {
+      throw new Error(`Team ${data.home_team} or ${data.away_team} not found`);
     }
-    try {
-      await prisma.game.createMany({ data: games });
-      resolve();
-    } catch (error) {
-      reject(error);
-    }
-  });
+    games.push({
+      homeTeamId,
+      awayTeamId,
+      date: new Date(data.date),
+      venueId: parseInt(data.venue_id),
+    });
+  }
+  await prisma.game.createMany({ data: games });
 
   console.log("Raw data imported successfully!");
 }
@@ -114,6 +102,6 @@ main()
   .catch((e) => {
     console.error(e);
   })
-  .finally(async () => {
-    await prisma.$disconnect();
+  .finally(() => {
+    prisma.$disconnect().catch(console.error);
   });
