@@ -30,15 +30,35 @@ async function main() {
       .on("error", reject);
   });
 
+  const teamHomeVenues: Record<string, number> = {};
+  const gamesRaw: GameRaw[] = [];
+  await new Promise<void>((resolve, reject) => {
+    fs.createReadStream("raw/games.csv")
+      .pipe(csv())
+      .on("data", (data: GameRaw) => {
+        if (teamHomeVenues[data.home_team] === undefined) {
+          teamHomeVenues[data.home_team] = parseInt(data.venue_id);
+        }
+        gamesRaw.push(data);
+      })
+      .on("end", resolve)
+      .on("error", reject);
+  });
+
   await new Promise<void>((resolve, reject) => {
     const teams: Prisma.TeamCreateManyInput[] = [];
     const simulations: Prisma.SimulationCreateManyInput[] = [];
     fs.createReadStream("raw/simulations.csv")
       .pipe(csv())
       .on("data", (data: SimulationRaw) => {
+        const venueId = teamHomeVenues[data.team];
+        if (venueId === undefined) {
+          throw new Error(`Home venue not found for team ${data.team}`);
+        }
         const team: Prisma.TeamCreateManyInput = {
           id: parseInt(data.team_id),
           name: data.team,
+          venueId,
         };
         if (teamNameToId[team.name] === undefined) {
           teamNameToId[team.name] = team.id;
@@ -62,34 +82,29 @@ async function main() {
       .on("error", reject);
   });
 
-  await new Promise<void>((resolve, reject) => {
+  await new Promise<void>(async (resolve, reject) => {
     const games: Prisma.GameCreateManyInput[] = [];
-    fs.createReadStream("raw/games.csv")
-      .pipe(csv())
-      .on("data", (data: GameRaw) => {
-        const homeTeamId = teamNameToId[data.home_team];
-        const awayTeamId = teamNameToId[data.away_team];
-        if (homeTeamId === undefined || awayTeamId === undefined) {
-          throw new Error(
-            `Team ${data.home_team} or ${data.away_team} not found`,
-          );
-        }
-        games.push({
-          homeTeamId,
-          awayTeamId,
-          date: new Date(data.date),
-          venueId: parseInt(data.venue_id),
-        });
-      })
-      .on("end", async () => {
-        try {
-          await prisma.game.createMany({ data: games });
-          resolve();
-        } catch (error) {
-          reject(error);
-        }
-      })
-      .on("error", reject);
+    for (const data of gamesRaw) {
+      const homeTeamId = teamNameToId[data.home_team];
+      const awayTeamId = teamNameToId[data.away_team];
+      if (homeTeamId === undefined || awayTeamId === undefined) {
+        throw new Error(
+          `Team ${data.home_team} or ${data.away_team} not found`,
+        );
+      }
+      games.push({
+        homeTeamId,
+        awayTeamId,
+        date: new Date(data.date),
+        venueId: parseInt(data.venue_id),
+      });
+    }
+    try {
+      await prisma.game.createMany({ data: games });
+      resolve();
+    } catch (error) {
+      reject(error);
+    }
   });
 
   console.log("Raw data imported successfully!");

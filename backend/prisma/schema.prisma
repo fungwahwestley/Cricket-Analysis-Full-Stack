@@ -14,7 +14,8 @@ model Venue {
   id             Int    @id @map("venue_id")
   name           String @map("venue_name")
   homeMultiplier Float  @map("home_multiplier")
-  games          Game[]
+  teams          Team[] @relation("TeamVenue")
+  games          Game[] @relation("VenueGames")
 
   @@map("venue")
 }
@@ -22,7 +23,9 @@ model Venue {
 model Team {
   id          Int          @id @map("team_id")
   name        String       @unique
-  simulations Simulation[]
+  venueId     Int
+  venue       Venue        @relation("TeamVenue", fields: [venueId], references: [id])
+  simulations Simulation[] @relation("TeamSimulations")
   homeGames   Game[]       @relation("HomeGames")
   awayGames   Game[]       @relation("AwayGames")
 
@@ -34,7 +37,7 @@ model Simulation {
   simulationRun Int  @map("simulation_run")
   results       Int
   teamId        Int
-  team          Team @relation(fields: [teamId], references: [id])
+  team          Team @relation("TeamSimulations", fields: [teamId], references: [id])
 
   @@map("simulation")
 }
@@ -47,7 +50,7 @@ model Game {
   venueId    Int
   homeTeam   Team     @relation("HomeGames", fields: [homeTeamId], references: [id])
   awayTeam   Team     @relation("AwayGames", fields: [awayTeamId], references: [id])
-  venue      Venue    @relation(fields: [venueId], references: [id])
+  venue      Venue    @relation("VenueGames", fields: [venueId], references: [id])
 
   @@map("game")
 }
