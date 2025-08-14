@@ -32,8 +32,16 @@ router.get("/game/:team1Id/:team2Id/:date", async (req, res) => {
         venue: { select: { id: true } },
       },
       where: {
-        homeTeamId: team1Id,
-        awayTeamId: team2Id,
+        OR: [
+          {
+            homeTeamId: team1Id,
+            awayTeamId: team2Id,
+          },
+          {
+            homeTeamId: team2Id,
+            awayTeamId: team1Id,
+          },
+        ],
         date,
       },
     });
