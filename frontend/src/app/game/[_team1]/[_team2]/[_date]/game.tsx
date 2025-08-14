@@ -1,5 +1,4 @@
 "use client";
-"use client";
 
 import { useQuery } from "@tanstack/react-query";
 import * as React from "react";
@@ -9,29 +8,14 @@ import type { AgBarSeriesOptions } from "ag-charts-community";
 import { API_BASE_URL } from "~/lib/config";
 import { Loading } from "~/components/loading";
 import { ErrorMessage } from "~/components/error-message";
-
-interface MatchupClientProps {
-  team1Id: number;
-  team2Id: number;
-  venueId?: number;
-}
-
-interface MatchupResponse {
-  team1: { name: string; winPercent: number; simulationsCount: number };
-  team2: { name: string; winPercent: number; simulationsCount: number };
-  venue: string;
-  histogram: {
-    data: Array<Record<string, number>>;
-    series?: Array<{ type: string; xKey: string; yKey: string; yName: string }>;
-  };
-}
+import { SimulationDto, type Simulation } from "~/contracts/simulation";
 
 async function fetchData(
   team1Id: number,
   team2Id: number,
-  venueId?: number,
-): Promise<MatchupResponse> {
-  const url = `${API_BASE_URL}/simulation/${team1Id}/${team2Id}/${venueId ?? ""}`;
+  date: Date,
+): Promise<Simulation> {
+  const url = `${API_BASE_URL}/game/${team1Id}/${team2Id}/${date.toISOString().split("T")[0]}`;
 
   const res = await fetch(url, {
     headers: { "Content-Type": "application/json" },
@@ -39,21 +23,23 @@ async function fetchData(
   if (!res.ok) {
     throw new Error(`Failed to fetch simulation runs: ${res.status}`);
   }
-  return (await res.json()) as MatchupResponse;
+  return SimulationDto.parse(await res.json());
 }
 
-export function MatchupClient({
-  team1Id,
-  team2Id,
-  venueId,
-}: MatchupClientProps) {
+interface GameProps {
+  team1Id: number;
+  team2Id: number;
+  date: Date;
+}
+
+export function Game({ team1Id, team2Id, date }: GameProps) {
   const { data, isLoading, error } = useQuery({
-    queryKey: ["simulation", team1Id, team2Id, venueId ?? null],
-    queryFn: () => fetchData(team1Id, team2Id, venueId),
+    queryKey: ["game", team1Id, team2Id, date],
+    queryFn: () => fetchData(team1Id, team2Id, date),
   });
 
   if (isLoading) {
-    return <Loading />;
+    return <Loading message="Loading game..." />;
   }
 
   if (error || !data) {
@@ -76,9 +62,9 @@ export function MatchupClient({
       <div className="mt-6 flex w-full flex-col items-stretch gap-6 lg:flex-row">
         <div className="flex-1 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
           <Histogram
-            title="Percentage of Matches"
+            title="Simulated Matches"
             subtitle=""
-            data={data.histogram.data}
+            bins={data.bins}
             series={series}
           />
         </div>

@@ -52,16 +52,14 @@ export function DatePicker({ id, date, setDate: setDate }: DatePickerProps) {
 
             // Handle UK-based date format
             const ukDatePattern = /^\s*(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})\s*$/;
-            const match = inputValue.match(ukDatePattern) as
+            const match = ukDatePattern.exec(inputValue) as
               | [string, string, string, string]
               | null;
 
             if (match) {
-              const [_, dayRaw, monthRaw, yearRaw] = match;
+              const [, dayRaw, monthRaw, yearRaw] = match;
               date = new Date(
-                parseInt(yearRaw.length === 2 ? `20${yearRaw}` : yearRaw),
-                parseInt(monthRaw) - 1,
-                parseInt(dayRaw),
+                `${yearRaw.padStart(4, "20")}-${monthRaw.padStart(2, "0")}-${dayRaw.padStart(2, "0")}`,
               );
             } else {
               date = new Date(inputValue);

@@ -3,15 +3,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import { AgCharts } from "ag-charts-react";
 import type { AgBarSeriesOptions, AgChartOptions } from "ag-charts-community";
+import type { Bins } from "~/contracts/simulation";
 
 interface HistogramProps {
   title: string;
   subtitle: string;
-  data: any[];
+  bins: Bins;
   series: AgBarSeriesOptions[];
 }
 
-export function Histogram({ title, subtitle, data, series }: HistogramProps) {
+export function Histogram({ title, subtitle, bins, series }: HistogramProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [containerWidth, setContainerWidth] = useState<number | null>(null);
 
@@ -43,7 +44,7 @@ export function Histogram({ title, subtitle, data, series }: HistogramProps) {
       text: subtitle,
     },
     background: { visible: false },
-    data,
+    data: bins,
     series,
     width: containerWidth ?? undefined,
     height: 540,
@@ -58,8 +59,13 @@ export function Histogram({ title, subtitle, data, series }: HistogramProps) {
         groupPaddingInner: 0,
         paddingOuter: 0,
         paddingInner: 0.15,
+        title: { text: "Runs" },
       },
-      { type: "number", position: "left" },
+      {
+        type: "number",
+        position: "left",
+        title: { text: "Percentage of Matches" },
+      },
     ],
   };
 

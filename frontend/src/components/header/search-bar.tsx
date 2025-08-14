@@ -7,19 +7,15 @@ import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { DatePicker } from "~/components/ui/date-picker";
 import { API_BASE_URL } from "~/lib/config";
-import {
-  SearchFiltersDto,
-  type SearchFilters,
-} from "~/contracts/searchFilters";
+import { FiltersDto, type Filters } from "~/contracts/filters";
 import { useQuery } from "@tanstack/react-query";
 import { ErrorMessage } from "../error-message";
-import { Loading } from "../loading";
 
 interface SearchBarProps {
   type: "past-games" | "custom-matchups";
 }
 
-async function fetchData(): Promise<SearchFilters> {
+async function fetchData(): Promise<Filters> {
   const url = `${API_BASE_URL}/filters`;
 
   const res = await fetch(url, {
@@ -28,7 +24,7 @@ async function fetchData(): Promise<SearchFilters> {
   if (!res.ok) {
     throw new Error(`Failed to fetch search filters: ${res.status}`);
   }
-  return SearchFiltersDto.parse(await res.json());
+  return FiltersDto.parse(await res.json());
 }
 
 export function SearchBar({ type }: SearchBarProps) {
@@ -38,7 +34,7 @@ export function SearchBar({ type }: SearchBarProps) {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const router = useRouter();
 
-  const { data, isLoading, error } = useQuery({
+  const { data, error } = useQuery({
     queryKey: ["filters"],
     queryFn: () => fetchData(),
   });
@@ -70,7 +66,7 @@ export function SearchBar({ type }: SearchBarProps) {
         value: team.id,
         label: team.name,
       })) ?? [],
-    [],
+    [data],
   );
 
   const venues = useMemo(
@@ -79,14 +75,10 @@ export function SearchBar({ type }: SearchBarProps) {
         value: venue.id,
         label: venue.name,
       })) ?? [],
-    [],
+    [data],
   );
 
-  if (isLoading) {
-    return <Loading />;
-  }
-
-  if (error || !data) {
+  if (error) {
     return <ErrorMessage error={error ?? new Error("No data found!")} />;
   }
 
