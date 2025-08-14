@@ -16,7 +16,7 @@ router.get("/filters", async (req, res) => {
 
     res.json({ teams, venues });
   } catch (error) {
-    res.status(500).json({ error });
+    res.status(500).json({ error: "Could not connect to the database" });
   }
 });
 
