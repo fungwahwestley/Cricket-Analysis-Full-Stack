@@ -2,6 +2,7 @@ import "~/styles/globals.css";
 
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
+import { Providers } from "~/app/providers";
 import { Header } from "~/components/header/header";
 
 export const metadata: Metadata = {
@@ -20,10 +21,12 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geist.variable}`}>
       <body>
-        <div className="flex min-h-screen flex-col items-center bg-gray-50 px-5">
-          <Header />
-          {children}
-        </div>
+        <Providers>
+          <div className="flex min-h-screen flex-col items-center bg-gray-50 px-5">
+            <Header />
+            {children}
+          </div>
+        </Providers>
       </body>
     </html>
   );

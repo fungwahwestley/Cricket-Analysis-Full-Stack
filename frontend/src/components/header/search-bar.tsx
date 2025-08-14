@@ -31,17 +31,29 @@ export function SearchBar({ type }: SearchBarProps) {
   const [team1, setTeam1] = useState<string | undefined>();
   const [team2, setTeam2] = useState<string | undefined>();
   const [venue, setVenue] = useState<string | undefined>();
+  const [date, setDate] = useState<Date | undefined>(new Date());
   const router = useRouter();
 
   const handleSearch = useCallback(() => {
-    if (team1 !== undefined && team2 !== undefined) {
-      let url = `/matchup/${team1}/${team2}`;
-      if (venue !== undefined) {
-        url = `${url}/${venue}`;
+    if (team1 === undefined || team2 === undefined) {
+      return;
+    }
+
+    let url;
+
+    if (type === "past-games") {
+      if (!date) {
+        return;
       }
+      url = `/game/${team1}/${team2}/${+date / 1000}`;
+    } else if (type === "custom-matchups") {
+      url = `/matchup/${team1}/${team2}/${venue ?? ""}`;
+    }
+
+    if (url) {
       router.push(url);
     }
-  }, [team1, team2, venue]);
+  }, [type, team1, team2, venue, router, date]);
 
   return (
     <div className="mx-auto flex items-center justify-between rounded-full bg-white p-2 shadow-lg">
@@ -83,7 +95,7 @@ export function SearchBar({ type }: SearchBarProps) {
             <label className="text-sm font-bold" htmlFor="date">
               Date
             </label>
-            <DatePicker id="date" />
+            <DatePicker id="date" date={date} setDate={setDate} />
           </div>
         )}
 

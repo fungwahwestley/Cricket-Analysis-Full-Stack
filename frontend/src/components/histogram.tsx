@@ -35,16 +35,6 @@ export function Histogram({ title, subtitle, data, series }: HistogramProps) {
     };
   }, []);
 
-  const leftEdge = 100;
-  const rightEdge = 120;
-  const binSize = 10;
-  const bins = Array.from(
-    { length: (rightEdge - leftEdge) / binSize },
-    (_, i) => leftEdge + i * binSize,
-  ); //bins: [9), [10–19), [20–29)
-
-  console.log("bins", bins);
-
   const series1: AgBarSeriesOptions = {
     type: "bar",
     xKey: "score",
@@ -74,9 +64,6 @@ export function Histogram({ title, subtitle, data, series }: HistogramProps) {
         label: { rotation: 0 },
         crosshair: { enabled: true },
         gridLine: { enabled: true },
-        // line: { enabled: true },
-        // paddingOuter: 0,
-        // paddingInner: 0,
         interval: {
           minSpacing: 10,
           placement: "between",
@@ -85,22 +72,7 @@ export function Histogram({ title, subtitle, data, series }: HistogramProps) {
         groupPaddingInner: 0,
         paddingOuter: 0,
         paddingInner: 0.15,
-        // depthOptions: [{}, { label: { fontWeight: "bold" } }],
       },
-      // {
-      //   type: "number",
-      //   position: "bottom",
-      //   gridLine: { enabled: false },
-      //   line: { enabled: false },
-      //   interval: {
-      //     step: 1,
-      //     values: [100, 110, 120],
-      //     // maxSpacing: 1,
-      //     // minSpacing: 0,
-      //   },
-      //   min: 97,
-      //   max: 120,
-      // },
       { type: "number", position: "left" },
     ],
   };

@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { CalendarIcon } from "lucide-react";
 
 import { Button } from "~/components/ui/button";
@@ -12,6 +11,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
+import { useCallback, useState } from "react";
 
 function formatDate(date: Date | undefined) {
   if (!date) {
@@ -30,15 +30,14 @@ function isValidDate(date: Date | undefined) {
 
 interface DatePickerProps {
   id: string;
+  date: Date | undefined;
+  setDate: (date: Date | undefined) => void;
 }
 
-export function DatePicker({ id }: DatePickerProps) {
-  const [open, setOpen] = React.useState(false);
-  const [date, setDate] = React.useState<Date | undefined>(
-    new Date(new Date().getFullYear(), 0, 1),
-  );
-  const [month, setMonth] = React.useState<Date | undefined>(date);
-  const [value, setValue] = React.useState(formatDate(date));
+export function DatePicker({ id, date, setDate: setDate }: DatePickerProps) {
+  const [open, setOpen] = useState(false);
+  const [month, setMonth] = useState<Date | undefined>(date);
+  const [value, setValue] = useState(formatDate(date));
 
   return (
     <div className="flex flex-col gap-3">
@@ -47,7 +46,7 @@ export function DatePicker({ id }: DatePickerProps) {
           id={id}
           value={value}
           placeholder="1/1/2025"
-          className="bg-background pr-10 text-gray-500 shadow-none focus-visible:ring-1"
+          className="bg-background w-[177px] pr-10 text-gray-500 shadow-none focus-visible:ring-1"
           onChange={(e) => {
             const inputValue = e.target.value;
             let date: Date;
@@ -59,11 +58,11 @@ export function DatePicker({ id }: DatePickerProps) {
               | null;
 
             if (match) {
-              const [_, day, month, year] = match;
+              const [_, dayRaw, monthRaw, yearRaw] = match;
               date = new Date(
-                parseInt(year.length === 2 ? `20${year}` : year),
-                parseInt(month) - 1,
-                parseInt(day),
+                parseInt(yearRaw.length === 2 ? `20${yearRaw}` : yearRaw),
+                parseInt(monthRaw) - 1,
+                parseInt(dayRaw),
               );
             } else {
               date = new Date(inputValue);
@@ -76,12 +75,6 @@ export function DatePicker({ id }: DatePickerProps) {
           }}
           onClick={() => {
             setOpen(true);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "ArrowDown") {
-              e.preventDefault();
-              setOpen(true);
-            }
           }}
         />
         <Popover open={open} onOpenChange={setOpen}>
