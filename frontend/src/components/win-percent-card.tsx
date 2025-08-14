@@ -18,7 +18,7 @@ export function WinPercentCard({
     : 0;
 
   return (
-    <div className="inline-block rounded-xl border border-zinc-200 bg-white p-8 shadow-sm">
+    <div className="inline-block rounded-xl border border-zinc-200 bg-white px-8 py-16 shadow-sm">
       <h2 className="text-2xl font-semibold whitespace-nowrap text-zinc-900">
         {teamName} Win %
       </h2>

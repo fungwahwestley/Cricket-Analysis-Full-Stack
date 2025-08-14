@@ -8,7 +8,7 @@ interface HistogramProps {
   title: string;
   subtitle: string;
   data: any[];
-  series: any;
+  series: AgBarSeriesOptions[];
 }
 
 export function Histogram({ title, subtitle, data, series }: HistogramProps) {
@@ -35,15 +35,6 @@ export function Histogram({ title, subtitle, data, series }: HistogramProps) {
     };
   }, []);
 
-  const series1: AgBarSeriesOptions = {
-    type: "bar",
-    xKey: "score",
-    yKey: "Everton",
-    yName: "Everton",
-    grouped: true,
-  };
-  const series2 = { ...series1, yKey: "Arsenal", yName: "Arsenal" };
-
   const options: AgChartOptions = {
     title: {
       text: title,
@@ -53,9 +44,9 @@ export function Histogram({ title, subtitle, data, series }: HistogramProps) {
     },
     background: { visible: false },
     data,
-    series: [series1, series2],
+    series,
     width: containerWidth ?? undefined,
-    height: 400,
+    height: 540,
     theme: "ag-polychroma",
     axes: [
       {
@@ -64,11 +55,6 @@ export function Histogram({ title, subtitle, data, series }: HistogramProps) {
         label: { rotation: 0 },
         crosshair: { enabled: true },
         gridLine: { enabled: true },
-        interval: {
-          minSpacing: 10,
-          placement: "between",
-          values: [100, 110, 120],
-        },
         groupPaddingInner: 0,
         paddingOuter: 0,
         paddingInner: 0.15,

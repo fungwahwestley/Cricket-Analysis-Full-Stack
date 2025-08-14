@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import * as z from "zod";
-import { Histogram } from "~/components/histogram";
-import { WinPercentCard } from "~/components/win-percent-card";
+import { MatchupClient } from "./matchup-client";
 
 const paramsSchema = z
   .object({
@@ -14,22 +13,6 @@ const paramsSchema = z
     team2Id: _team2,
     venueId: _venue?.[0],
   }));
-
-// START: PLACEHOLDERS FOR BACKEND ENDPOINT DATA
-const team1 = "placeholder1";
-const team2 = "placeholder2";
-const venue = "placeholder3";
-
-const histogramData: any[] = [
-  { score: 100, [team1]: 5, [team2]: 8 },
-  { score: 110, [team1]: 7, [team2]: 9 },
-  { score: 120, [team1]: 9, [team2]: 4 },
-];
-const histogramSeries: any[] = [
-  { type: "bar", xKey: "score", yKey: team1, yName: team1 },
-  { type: "bar", xKey: "score", yKey: team2, yName: team2 },
-];
-// END
 
 export default async function Page({
   params,
@@ -44,32 +27,8 @@ export default async function Page({
   const { team1Id, team2Id, venueId } = parsed.data;
 
   return (
-    <main className="flex w-full max-w-[1120px] flex-1 flex-col items-start justify-start pt-12 pb-4">
-      <h1 className="text-3xl font-semibold tracking-tight text-zinc-900">
-        {team1} vs {team2} • {venue}
-      </h1>
-      <div className="mt-6 flex w-full flex-col items-stretch gap-6 lg:flex-row">
-        <div className="flex-1 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
-          <Histogram
-            title="Percentage of Matches"
-            subtitle=""
-            data={histogramData}
-            series={histogramSeries}
-          />
-        </div>
-        <div className="flex w-fit flex-col gap-3">
-          <WinPercentCard
-            teamName={team1}
-            winPercent={50}
-            simulationsCount={50}
-          />
-          <WinPercentCard
-            teamName={team2}
-            winPercent={50}
-            simulationsCount={50}
-          />
-        </div>
-      </div>
+    <main className="flex w-full max-w-[1420px] flex-1 flex-col items-start justify-start pt-12 pb-4">
+      <MatchupClient team1Id={team1Id} team2Id={team2Id} venueId={venueId} />
     </main>
   );
 }

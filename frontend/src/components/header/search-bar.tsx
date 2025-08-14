@@ -1,30 +1,34 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Combobox } from "~/components/ui/combobox";
 import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { DatePicker } from "~/components/ui/date-picker";
-
-const teams = [
-  { value: 0, label: "Sunrisers Hyderabad" },
-  { value: 1, label: "Mumbai Indians" },
-  { value: 2, label: "Chennai Super Kings" },
-  { value: 3, label: "Royal Challengers Bangalore" },
-  { value: 4, label: "Kolkata Knight Riders" },
-  { value: 5, label: "Delhi Capitals" },
-  { value: 6, label: "Punjab Kings" },
-  { value: 7, label: "Rajasthan Royals" },
-];
-
-const venues = [
-  { value: 0, label: "Eden Gardens" },
-  { value: 1, label: "Wankhede Stadium" },
-];
+import { API_BASE_URL } from "~/lib/config";
+import {
+  SearchFiltersDto,
+  type SearchFilters,
+} from "~/contracts/searchFilters";
+import { useQuery } from "@tanstack/react-query";
+import { ErrorMessage } from "../error-message";
+import { Loading } from "../loading";
 
 interface SearchBarProps {
   type: "past-games" | "custom-matchups";
+}
+
+async function fetchData(): Promise<SearchFilters> {
+  const url = `${API_BASE_URL}/filters`;
+
+  const res = await fetch(url, {
+    headers: { "Content-Type": "application/json" },
+  });
+  if (!res.ok) {
+    throw new Error(`Failed to fetch search filters: ${res.status}`);
+  }
+  return SearchFiltersDto.parse(await res.json());
 }
 
 export function SearchBar({ type }: SearchBarProps) {
@@ -33,6 +37,11 @@ export function SearchBar({ type }: SearchBarProps) {
   const [venue, setVenue] = useState<string | undefined>();
   const [date, setDate] = useState<Date | undefined>(new Date());
   const router = useRouter();
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["filters"],
+    queryFn: () => fetchData(),
+  });
 
   const handleSearch = useCallback(() => {
     if (team1 === undefined || team2 === undefined) {
@@ -54,6 +63,32 @@ export function SearchBar({ type }: SearchBarProps) {
       router.push(url);
     }
   }, [type, team1, team2, venue, router, date]);
+
+  const teams = useMemo(
+    () =>
+      data?.teams.map((team) => ({
+        value: team.id,
+        label: team.name,
+      })) ?? [],
+    [],
+  );
+
+  const venues = useMemo(
+    () =>
+      data?.venues.map((venue) => ({
+        value: venue.id,
+        label: venue.name,
+      })) ?? [],
+    [],
+  );
+
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  if (error || !data) {
+    return <ErrorMessage error={error ?? new Error("No data found!")} />;
+  }
 
   return (
     <div className="mx-auto flex items-center justify-between rounded-full bg-white p-2 shadow-lg">
