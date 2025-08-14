@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { DatePicker } from "~/components/ui/date-picker";
 import { API_BASE_URL } from "~/lib/config";
 import { FiltersDto, type Filters } from "~/contracts/filters";
+import { ApiErrorDto } from "~/contracts/error";
 import { useQuery } from "@tanstack/react-query";
 import { ErrorMessage } from "../error-message";
 
@@ -22,7 +23,11 @@ async function fetchData(): Promise<Filters> {
     headers: { "Content-Type": "application/json" },
   });
   if (!res.ok) {
-    throw new Error(`Failed to fetch search filters: ${res.status}`);
+    const parsed = ApiErrorDto.safeParse(await res.json());
+    if (parsed.success) {
+      throw new Error(parsed.data.error);
+    }
+    throw new Error(`Request failed with status ${res.status}`);
   }
   return FiltersDto.parse(await res.json());
 }
@@ -50,7 +55,7 @@ export function SearchBar({ type }: SearchBarProps) {
       if (!date) {
         return;
       }
-      url = `/game/${team1}/${team2}/${+date / 1000}`;
+      url = `/game/${team1}/${team2}/${date.toISOString().split("T")[0]}`;
     } else if (type === "custom-matchups") {
       url = `/matchup/${team1}/${team2}/${venue ?? ""}`;
     }

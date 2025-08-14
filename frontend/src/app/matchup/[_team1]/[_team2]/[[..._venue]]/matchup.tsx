@@ -9,6 +9,7 @@ import { API_BASE_URL } from "~/lib/config";
 import { Loading } from "~/components/loading";
 import { ErrorMessage } from "~/components/error-message";
 import { SimulationDto, type Simulation } from "~/contracts/simulation";
+import { ApiErrorDto } from "~/contracts/error";
 
 async function fetchData(
   team1Id: number,
@@ -21,7 +22,11 @@ async function fetchData(
     headers: { "Content-Type": "application/json" },
   });
   if (!res.ok) {
-    throw new Error(`Failed to fetch simulation runs: ${res.status}`);
+    const parsed = ApiErrorDto.safeParse(await res.json());
+    if (parsed.success) {
+      throw new Error(parsed.data.error);
+    }
+    throw new Error(`Request failed with status ${res.status}`);
   }
   return SimulationDto.parse(await res.json());
 }

@@ -101,6 +101,7 @@ export function DatePicker({ id, date, setDate: setDate }: DatePickerProps) {
             }}
           >
             <Calendar
+              timeZone="Europe/London"
               mode="single"
               selected={date}
               captionLayout="dropdown"
