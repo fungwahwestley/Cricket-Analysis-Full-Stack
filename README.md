@@ -1,8 +1,10 @@
 # Cricket Data Analytics
 
-This is a web application for analysing cricket data. It consists of a backend server with Rest API & PostgreSQL database, and a frontend client built with Next.js.
+This is a web application for analysing cricket data. It consists of a backend server with the Rest API & PostgreSQL database connected through Prisma ORM, and a frontend Next.js client built with Shadcn, Tailwind, and React Query (TanStack Query). Both ends use Zod for data validation and parsing (DTOs).
 
-## Setup
+Link: https://cricket.fungwah.me/
+
+## Local Setup
 
 ### Prerequisites
 
