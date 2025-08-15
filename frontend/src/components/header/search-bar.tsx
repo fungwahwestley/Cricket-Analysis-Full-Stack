@@ -5,7 +5,6 @@ import { Button } from "~/components/ui/button";
 import { Combobox } from "~/components/ui/combobox";
 import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { DatePicker } from "~/components/ui/date-picker";
 import { API_BASE_URL } from "~/lib/config";
 import { FiltersDto, type Filters } from "~/contracts/filters";
 import { ApiErrorDto } from "~/contracts/error";
@@ -36,7 +35,7 @@ export function SearchBar({ type }: SearchBarProps) {
   const [team1, setTeam1] = useState<string | undefined>();
   const [team2, setTeam2] = useState<string | undefined>();
   const [venue, setVenue] = useState<string | undefined>();
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  // const [date, setDate] = useState<Date | undefined>(new Date());
   const router = useRouter();
 
   const { data, error } = useQuery({
@@ -52,10 +51,11 @@ export function SearchBar({ type }: SearchBarProps) {
     let url;
 
     if (type === "past-games") {
-      if (!date) {
-        return;
-      }
-      url = `/game/${team1}/${team2}/${date.toISOString().split("T")[0]}`;
+      // if (!date) {
+      //   return;
+      // }
+      // url = `/game/${team1}/${team2}/${date.toISOString().split("T")[0]}`;
+      url = `/games/${team1}/${team2}`;
     } else if (type === "custom-matchups") {
       url = `/matchup/${team1}/${team2}/${venue ?? ""}`;
     }
@@ -63,7 +63,7 @@ export function SearchBar({ type }: SearchBarProps) {
     if (url) {
       router.push(url);
     }
-  }, [type, team1, team2, venue, router, date]);
+  }, [type, team1, team2, venue, router]);
 
   const teams = useMemo(
     () =>
@@ -122,14 +122,14 @@ export function SearchBar({ type }: SearchBarProps) {
           />
         </div>
 
-        {type === "past-games" && (
+        {/* {type === "past-games" && (
           <div className="px-9 py-2">
             <label className="text-sm font-bold" htmlFor="date">
               Date
             </label>
             <DatePicker id="date" date={date} setDate={setDate} />
           </div>
-        )}
+        )} */}
 
         {type === "custom-matchups" && (
           <div className="px-9 py-2">
