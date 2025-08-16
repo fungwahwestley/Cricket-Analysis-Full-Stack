@@ -1,17 +1,20 @@
 "use client";
 
 import React from "react";
+import { cn } from "~/lib/utils/cn";
 
 interface WinPercentCardProps {
   teamName: string;
   winPercent: number;
   simulationsCount?: number;
+  color?: string;
 }
 
 export function WinPercentCard({
   teamName,
   winPercent,
   simulationsCount,
+  color = "text-blue-600",
 }: WinPercentCardProps) {
   const formattedPercent = Number.isFinite(winPercent)
     ? Math.round(winPercent)
@@ -22,7 +25,7 @@ export function WinPercentCard({
       <h2 className="text-2xl font-semibold whitespace-nowrap text-zinc-900">
         {teamName} Win %
       </h2>
-      <div className="mt-4 text-7xl font-extrabold tracking-tight text-blue-600">
+      <div className={cn("mt-4 text-7xl font-extrabold tracking-tight", color)}>
         {formattedPercent}%
       </div>
       {simulationsCount && (

@@ -8,14 +8,20 @@ import type { AgBarSeriesOptions } from "ag-charts-community";
 import { API_BASE_URL } from "~/lib/config";
 import { Loading } from "~/components/loading";
 import { ErrorMessage } from "~/components/error-message";
-import { SimulationDto, type Simulation } from "~/contracts/simulation";
-import { ApiErrorDto } from "~/contracts/error";
+import { ApiErrorDto } from "~/contracts/errors";
+import { formatDateLong } from "~/lib/utils/formatDate";
+import {
+  GameWithSimulationDto,
+  type GameWithSimulation,
+} from "~/contracts/games";
+import { GameHeadline } from "~/components/game-headline";
+import { GameSimulation } from "~/components/game-simulation";
 
 async function fetchData(
   team1Id: number,
   team2Id: number,
   date: Date,
-): Promise<Simulation> {
+): Promise<GameWithSimulation> {
   const url = `${API_BASE_URL}/game/${team1Id}/${team2Id}/${date.toISOString().split("T")[0]}`;
 
   const res = await fetch(url, {
@@ -28,7 +34,7 @@ async function fetchData(
     }
     throw new Error(`Request failed with status ${res.status}`);
   }
-  return SimulationDto.parse(await res.json());
+  return GameWithSimulationDto.parse(await res.json());
 }
 
 interface GameProps {
@@ -51,41 +57,26 @@ export function Game({ team1Id, team2Id, date }: GameProps) {
     return <ErrorMessage error={error ?? new Error("No data found!")} />;
   }
 
-  const team1Name = data.team1.name;
-  const team2Name = data.team2.name;
+  const { simulation, homeTeamId, awayTeamId, venue } = data;
 
-  const series: AgBarSeriesOptions[] = [
-    { type: "bar", xKey: "score", yKey: team1Name, yName: team1Name },
-    { type: "bar", xKey: "score", yKey: team2Name, yName: team2Name },
-  ];
+  const homeTeamSimulation =
+    homeTeamId === team1Id ? simulation.team1 : simulation.team2;
+  const awayTeamSimulation =
+    awayTeamId === team1Id ? simulation.team1 : simulation.team2;
 
   return (
     <>
-      <h1 className="text-3xl font-semibold tracking-tight text-zinc-900">
-        {team1Name} vs {team2Name} • {data.venue}
-      </h1>
-      <div className="mt-6 flex w-full flex-col items-stretch gap-6 lg:flex-row">
-        <div className="flex-1 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
-          <Histogram
-            title="Simulated Matches"
-            subtitle=""
-            bins={data.bins}
-            series={series}
-          />
-        </div>
-        <div className="flex w-fit flex-col gap-3">
-          <WinPercentCard
-            teamName={team1Name}
-            winPercent={data.team1.winPercent * 100}
-            simulationsCount={data.team1.simulationsCount}
-          />
-          <WinPercentCard
-            teamName={team2Name}
-            winPercent={data.team2.winPercent * 100}
-            simulationsCount={data.team2.simulationsCount}
-          />
-        </div>
-      </div>
+      <GameHeadline
+        homeTeamName={homeTeamSimulation.name}
+        awayTeamName={awayTeamSimulation.name}
+        venue={venue}
+        date={date}
+      />
+      <GameSimulation
+        homeTeamSimulation={homeTeamSimulation}
+        awayTeamSimulation={awayTeamSimulation}
+        bins={simulation.bins}
+      />
     </>
   );
 }

@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { AgCharts } from "ag-charts-react";
 import type { AgBarSeriesOptions, AgChartOptions } from "ag-charts-community";
-import type { Bins } from "~/contracts/simulation";
+import type { Bins } from "~/contracts/simulations";
 
 interface HistogramProps {
   title: string;

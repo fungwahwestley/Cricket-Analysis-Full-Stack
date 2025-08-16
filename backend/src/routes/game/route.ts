@@ -29,7 +29,9 @@ router.get("/game/:team1Id/:team2Id/:date", async (req, res) => {
   try {
     const game = await prisma.game.findFirst({
       select: {
-        venue: { select: { id: true } },
+        venueId: true,
+        homeTeamId: true,
+        awayTeamId: true,
       },
       where: {
         OR: [
@@ -59,21 +61,25 @@ router.get("/game/:team1Id/:team2Id/:date", async (req, res) => {
         team1WinPercent,
         team2WinPercent,
         minSimulations,
-      } = await runSimulation(team1Id, team2Id, game.venue.id, binSize);
+      } = await runSimulation(team1Id, team2Id, game.venueId, binSize);
 
       res.json({
-        team1: {
-          name: team1.name,
-          winPercent: team1WinPercent,
-          simulationsCount: minSimulations,
+        simulation: {
+          team1: {
+            name: team1.name,
+            winPercent: team1WinPercent,
+            simulationsCount: minSimulations,
+          },
+          team2: {
+            name: team2.name,
+            winPercent: team2WinPercent,
+            simulationsCount: minSimulations,
+          },
+          bins: bins,
         },
-        team2: {
-          name: team2.name,
-          winPercent: team2WinPercent,
-          simulationsCount: minSimulations,
-        },
+        homeTeamId: game.homeTeamId,
+        awayTeamId: game.awayTeamId,
         venue: venue ? venue.name : "Any Venue",
-        bins: bins,
       });
     } catch (error) {
       res.status(400).json({ error });

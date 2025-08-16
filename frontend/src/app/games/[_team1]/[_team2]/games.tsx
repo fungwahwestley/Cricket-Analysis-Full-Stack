@@ -5,7 +5,7 @@ import * as React from "react";
 import { API_BASE_URL } from "~/lib/config";
 import { Loading } from "~/components/loading";
 import { ErrorMessage } from "~/components/error-message";
-import { ApiErrorDto } from "~/contracts/error";
+import { ApiErrorDto } from "~/contracts/errors";
 import { GamesDto, type Games } from "~/contracts/games";
 import {
   Command,
@@ -16,6 +16,7 @@ import {
 } from "~/components/ui/command";
 import { Game as GameComponent } from "~/app/games/[_team1]/[_team2]/game";
 import type { Game } from "~/contracts/atoms";
+import { formatDateLong, formatDateShort } from "~/lib/utils/formatDate";
 
 async function fetchData(team1Id: number, team2Id: number): Promise<Games> {
   const url = `${API_BASE_URL}/games/${team1Id}/${team2Id}`;
@@ -31,22 +32,6 @@ async function fetchData(team1Id: number, team2Id: number): Promise<Games> {
     throw new Error(`Request failed with status ${res.status}`);
   }
   return GamesDto.parse(await res.json());
-}
-
-function formatDateShort(date: Date) {
-  return new Intl.DateTimeFormat(undefined, {
-    month: "short",
-    day: "numeric",
-  }).format(date);
-}
-
-function formatDateLong(date: Date) {
-  return new Intl.DateTimeFormat(undefined, {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(date);
 }
 
 interface GamesProps {

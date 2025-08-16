@@ -9,6 +9,7 @@ export default async function Page({ params }: { params: PageParams }) {
   }
 
   const { team1Id, team2Id } = parsed.data;
+  console.log("Found Games component:", Games);
 
   return (
     <main className="flex w-full max-w-[1580px] flex-1 flex-col items-start justify-start gap-2 pt-12 pb-4">

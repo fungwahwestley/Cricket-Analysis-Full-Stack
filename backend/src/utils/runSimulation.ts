@@ -10,15 +10,16 @@ export const runSimulation = async (
 ) => {
   const [team1, team2, venue] = await Promise.all([
     prisma.team.findUnique({
+      select: { name: true, venueId: true },
       where: { id: team1Id },
-      include: { venue: { select: { id: true } } },
     }),
     prisma.team.findUnique({
+      select: { name: true, venueId: true },
       where: { id: team2Id },
-      include: { venue: { select: { id: true } } },
     }),
     venueId != null
       ? prisma.venue.findUnique({
+          select: { name: true, homeMultiplier: true },
           where: { id: venueId },
         })
       : Promise.resolve(null),

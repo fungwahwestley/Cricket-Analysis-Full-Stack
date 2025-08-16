@@ -7,7 +7,7 @@ router.get("/filters", async (req, res) => {
   try {
     const [teams, venues] = await Promise.all([
       prisma.team.findMany({
-        select: { id: true, name: true },
+        select: { id: true, name: true, venueId: true },
       }),
       prisma.venue.findMany({
         select: { id: true, name: true },

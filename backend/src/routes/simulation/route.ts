@@ -47,8 +47,10 @@ router.get("/simulation/:team1Id/:team2Id{/:venueId}", async (req, res) => {
         winPercent: team2WinPercent,
         simulationsCount: minSimulations,
       },
-      venue: venue ? venue.name : "Any Venue",
       bins: bins,
+      homeTeamId: team1.venueId == venueId ? team1Id : team2Id,
+      awayTeamId: team1.venueId == venueId ? team2Id : team1Id,
+      venue: venue ? venue.name : "Any Venue",
     });
   } catch (error) {
     res.status(400).json({ error });

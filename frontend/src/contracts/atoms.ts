@@ -3,6 +3,7 @@ import { z } from "zod";
 export const TeamDto = z.object({
   id: z.number().int(),
   name: z.string(),
+  venueId: z.number().int(),
 });
 
 export const VenueDto = z.object({

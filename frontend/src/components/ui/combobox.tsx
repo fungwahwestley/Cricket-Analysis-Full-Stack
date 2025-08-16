@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
 
-import { cn } from "~/lib/utils";
+import { cn } from "~/lib/utils/cn";
 import { Button } from "~/components/ui/button";
 import {
   Command,
@@ -34,6 +34,7 @@ interface ComboboxProps {
   emptyMessage?: string;
   contentClassName?: string;
   className?: string;
+  SpecialIconComponent?: React.ComponentType<{ value: number }>;
   variant?: "default" | "filter";
 }
 
@@ -47,6 +48,7 @@ export function Combobox({
   emptyMessage,
   contentClassName,
   className,
+  SpecialIconComponent,
   variant = "default",
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false);
@@ -90,19 +92,24 @@ export function Combobox({
                   key={String(option.value)}
                   value={String(option.value)}
                   keywords={[option.label]}
+                  className="hover:bg-accent/70"
                   onSelect={(currentValue) => {
                     onValueChange(currentValue === value ? "" : currentValue);
                     setOpen(false);
                   }}
                 >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === String(option.value)
-                        ? "opacity-100"
-                        : "opacity-0",
-                    )}
-                  />
+                  {SpecialIconComponent ? (
+                    <SpecialIconComponent value={Number(option.value)} />
+                  ) : (
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        value === String(option.value)
+                          ? "opacity-100"
+                          : "opacity-0",
+                      )}
+                    />
+                  )}
                   {option.label}
                 </CommandItem>
               ))}
