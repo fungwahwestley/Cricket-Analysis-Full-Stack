@@ -132,7 +132,7 @@ export function SearchBar({ type }: SearchBarProps) {
             htmlFor="team1"
           >
             <span>Team 1</span>
-            {team1VenueId ? (
+            {team1VenueId && type === "custom-matchups" ? (
               <button
                 className="inline-block h-[14px] cursor-pointer items-center"
                 onClick={() =>
@@ -161,7 +161,7 @@ export function SearchBar({ type }: SearchBarProps) {
             htmlFor="team2"
           >
             <span>Team 2</span>
-            {team2VenueId ? (
+            {team2VenueId && type === "custom-matchups" ? (
               <button
                 className="inline-block h-[14px] cursor-pointer items-center"
                 onClick={() =>
