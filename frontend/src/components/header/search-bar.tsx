@@ -132,11 +132,11 @@ export function SearchBar({ type }: SearchBarProps) {
             htmlFor="team1"
           >
             <span>Team 1</span>
-            {team1VenueId && type === "custom-matchups" ? (
+            {team1VenueId != undefined && type === "custom-matchups" ? (
               <button
                 className="inline-block h-[14px] cursor-pointer items-center"
                 onClick={() =>
-                  setVenueId(team1VenueId ? String(team1VenueId) : undefined)
+                  setVenueId(team1VenueId != undefined ? String(team1VenueId) : undefined)
                 }
               >
                 <House className="h-4 w-4 text-xs text-gray-500 hover:text-gray-400" />
@@ -161,11 +161,11 @@ export function SearchBar({ type }: SearchBarProps) {
             htmlFor="team2"
           >
             <span>Team 2</span>
-            {team2VenueId && type === "custom-matchups" ? (
+            {team2VenueId != undefined && type === "custom-matchups" ? (
               <button
                 className="inline-block h-[14px] cursor-pointer items-center"
                 onClick={() =>
-                  setVenueId(team2VenueId ? String(team2VenueId) : undefined)
+                  setVenueId(team2VenueId != undefined ? String(team2VenueId) : undefined)
                 }
               >
                 <House className="h-4 w-4 text-xs text-gray-500 hover:text-gray-400" />
