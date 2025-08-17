@@ -21,8 +21,9 @@ Link: https://cricket.fungwah.me/
 2. Run `npm install` to install the node modules
 3. Create a `.env` file in the project root
   - Insert `DATABASE_URL="postgresql://postgres:{password}@localhost:5432/cricket_analysis"` (replace `{password}`) and save
-3. Run `npm run init` to parse the cricket data and fill the database
-4. Run `npm run dev` to start the backend webserver
+4. Run `npx prisma migrate deploy` to create the tables
+5. Run `npm run init` to parse the cricket data and fill the database
+6. Run `npm run dev` to start the backend webserver
 
 ### Frontend Setup
 1. Navigate to `frontend/`
