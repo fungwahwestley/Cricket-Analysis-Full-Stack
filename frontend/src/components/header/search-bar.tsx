@@ -52,10 +52,6 @@ export function SearchBar({ type }: SearchBarProps) {
     let url;
 
     if (type === "past-games") {
-      // if (!date) {
-      //   return;
-      // }
-      // url = `/game/${team1}/${team2}/${date.toISOString().split("T")[0]}`;
       url = `/games/${team1Id}/${team2Id}`;
     } else if (type === "custom-matchups") {
       url = `/matchup/${team1Id}/${team2Id}/${venueId ?? ""}`;
@@ -75,13 +71,22 @@ export function SearchBar({ type }: SearchBarProps) {
     return [team1?.venueId, team2?.venueId];
   }, [data, team1Id, team2Id]);
 
-  const teams = useMemo(
+  const team1Selection = useMemo(
     () =>
       data?.teams.map((team) => ({
         value: team.id,
         label: team.name,
-      })) ?? [],
+      })).filter((team) => team.value != Number(team2Id)) ?? [],
     [data],
+  );
+
+  const team2Selection = useMemo(
+    () =>
+      data?.teams.map((team) => ({
+        value: team.id,
+        label: team.name,
+      })).filter((team) => team.value != Number(team1Id)) ?? [],
+    [data, team1Id],
   );
 
   const venues = useMemo(
@@ -136,16 +141,26 @@ export function SearchBar({ type }: SearchBarProps) {
               <button
                 className="inline-block h-[14px] cursor-pointer items-center"
                 onClick={() =>
-                  setVenueId(team1VenueId != undefined ? String(team1VenueId) : undefined)
+                  setVenueId(
+                    team1VenueId != undefined
+                      ? String(team1VenueId)
+                      : undefined,
+                  )
                 }
               >
-                <House className="h-4 w-4 text-xs text-gray-500 hover:text-gray-400" />
+                <House
+                  className={`v h-4 w-4 text-xs ${
+                    venueId == String(team1VenueId)
+                      ? "text-blue-600"
+                      : "text-gray-500 hover:text-blue-600"
+                  }`}
+                />
               </button>
             ) : null}
           </label>
           <Combobox
             id="team1"
-            options={teams}
+            options={team1Selection}
             value={team1Id}
             onValueChange={setTeam1Id}
             placeholder="Choose team"
@@ -165,16 +180,26 @@ export function SearchBar({ type }: SearchBarProps) {
               <button
                 className="inline-block h-[14px] cursor-pointer items-center"
                 onClick={() =>
-                  setVenueId(team2VenueId != undefined ? String(team2VenueId) : undefined)
+                  setVenueId(
+                    team2VenueId != undefined
+                      ? String(team2VenueId)
+                      : undefined,
+                  )
                 }
               >
-                <House className="h-4 w-4 text-xs text-gray-500 hover:text-gray-400" />
+                <House
+                  className={`h-4 w-4 text-xs ${
+                    venueId == String(team2VenueId)
+                      ? "text-blue-600"
+                      : "text-gray-500 hover:text-blue-600"
+                  }`}
+                />
               </button>
             ) : null}
           </label>
           <Combobox
             id="team2"
-            options={teams}
+            options={team2Selection}
             value={team2Id}
             onValueChange={setTeam2Id}
             placeholder="Choose team"
@@ -183,15 +208,6 @@ export function SearchBar({ type }: SearchBarProps) {
             variant="filter"
           />
         </div>
-
-        {/* {type === "past-games" && (
-          <div className="px-9 py-2">
-            <label className="text-sm font-bold" htmlFor="date">
-              Date
-            </label>
-            <DatePicker id="date" date={date} setDate={setDate} />
-          </div>
-        )} */}
 
         {type === "custom-matchups" && (
           <div className="px-9 py-2">
