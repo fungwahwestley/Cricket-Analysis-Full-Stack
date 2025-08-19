@@ -129,11 +129,11 @@ export function SearchBar({ type }: SearchBarProps) {
   }
 
   return (
-    <div className="mx-auto flex items-center justify-between rounded-full bg-white p-2 shadow-lg">
-      <div className="flex flex-grow items-center divide-x divide-gray-200">
-        <div className="px-9 py-2">
+    <div className="mx-auto flex w-full flex-col items-stretch justify-between gap-4 rounded-xl bg-white p-4 shadow-lg md:flex-row md:items-center md:gap-0 md:rounded-full md:p-2">
+      <div className="flex flex-col items-stretch divide-y divide-gray-200 md:flex-row md:items-center md:divide-y-0 md:divide-x">
+        <div className="py-2 md:px-9">
           <label
-            className="flex items-center justify-between text-sm font-bold"
+            className="flex items-center justify-between text-xs font-bold md:text-sm"
             htmlFor="team1"
           >
             <span>Team 1</span>
@@ -170,9 +170,9 @@ export function SearchBar({ type }: SearchBarProps) {
           />
         </div>
 
-        <div className="px-9 py-2">
+        <div className="py-2 md:px-9">
           <label
-            className="flex items-center justify-between text-sm font-bold"
+            className="flex items-center justify-between text-xs font-bold md:text-sm"
             htmlFor="team2"
           >
             <span>Team 2</span>
@@ -210,8 +210,8 @@ export function SearchBar({ type }: SearchBarProps) {
         </div>
 
         {type === "custom-matchups" && (
-          <div className="px-9 py-2">
-            <label className="text-sm font-bold" htmlFor="venue">
+          <div className="py-2 md:px-9">
+            <label className="text-xs font-bold md:text-sm" htmlFor="venue">
               Venue
             </label>
             <Combobox
@@ -231,10 +231,10 @@ export function SearchBar({ type }: SearchBarProps) {
 
       <Button
         size="icon"
-        className="h-14 w-14 flex-shrink-0 cursor-pointer rounded-full bg-blue-600 text-white hover:bg-blue-500"
+        className="h-14 w-full flex-shrink-0 cursor-pointer rounded-lg bg-blue-600 text-white hover:bg-blue-500 md:h-14 md:w-14 md:rounded-full"
         onClick={handleSearch}
       >
-        <Search className="h-6 w-6" />
+        <Search className="h-5 w-5 md:h-6 md:w-6" />
       </Button>
     </div>
   );

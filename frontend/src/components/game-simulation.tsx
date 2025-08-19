@@ -43,7 +43,7 @@ export function GameSimulation({
           series={series}
         />
       </div>
-      <div className="flex w-fit flex-col gap-3">
+      <div className="flex w-full flex-col gap-3 lg:w-fit">
         <WinPercentCard
           teamName={homeTeamSimulation.name}
           winPercent={homeTeamSimulation.winPercent * 100}

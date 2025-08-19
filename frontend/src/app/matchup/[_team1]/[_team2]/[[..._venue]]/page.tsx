@@ -11,7 +11,7 @@ export default async function Page({ params }: { params: PageParams }) {
   const { team1Id, team2Id, venueId } = parsed.data;
 
   return (
-    <main className="flex w-full max-w-[1180px] flex-1 flex-col items-start justify-start pt-12 pb-4">
+    <main className="flex w-full max-w-[1180px] flex-1 flex-col items-start justify-start pt-6 pb-4 md:pt-12">
       <Matchup team1Id={team1Id} team2Id={team2Id} venueId={venueId} />
     </main>
   );

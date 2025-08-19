@@ -22,7 +22,7 @@ export default function RootLayout({
     <html lang="en" className={`${geist.variable}`}>
       <body>
         <Providers>
-          <div className="flex min-h-screen flex-col items-center bg-gray-50 px-5">
+          <div className="flex min-h-screen flex-col items-center bg-gray-50 px-5 md:px-20">
             <Header />
             {children}
           </div>

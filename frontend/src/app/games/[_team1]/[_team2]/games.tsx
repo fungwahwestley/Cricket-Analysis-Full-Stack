@@ -60,11 +60,11 @@ export function Games({ team1Id, team2Id }: GamesProps) {
   const selectedGame = _selectedGame ?? games[0] ?? null;
 
   return (
-    <div className="flex w-full items-start gap-6">
-      <div className="w-full max-w-sm shrink-0">
+    <div className="flex w-full flex-col items-stretch gap-6 md:flex-row md:items-start">
+      <div className="order-2 w-full shrink-0 md:order-1 md:max-w-sm">
         <div className="flex flex-col gap-1">
           <div className="justify-center-center flex flex-col items-start px-2 py-2">
-            <h2 className="text-base leading-[16px] font-medium">
+            <h2 className="text-base font-medium leading-[16px]">
               {games.length > 0 ? `${team1Name} vs ${team2Name}` : "Games"}
             </h2>
           </div>
@@ -114,7 +114,7 @@ export function Games({ team1Id, team2Id }: GamesProps) {
       </div>
 
       {selectedGame !== null ? (
-        <div className="bg-card/40 mt-2 hidden min-h-[320px] flex-1 rounded-lg border px-6 py-6 md:block">
+        <div className="bg-card/40 order-1 mt-2 min-h-[320px] flex-1 rounded-lg border px-6 py-6 md:order-2">
           <div className="text-muted-foreground text-sm">
             <GameComponent
               team1Id={team1Id}
